@@ -1,0 +1,79 @@
+package com.github.MarcusDev01.ms.produto.exceptions.handler;
+
+
+import com.github.MarcusDev01.ms.produto.exceptions.ResourceNotFoundException;
+import com.github.MarcusDev01.ms.produto.exceptions.dto.CustomErrorDTO;
+import com.github.MarcusDev01.ms.produto.exceptions.dto.ValidationErrorDTO;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.val;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import java.lang.reflect.Field;
+import java.time.Instant;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<CustomErrorDTO>handleResourceNotFound(ResourceNotFoundException e
+            , HttpServletRequest request){
+
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        CustomErrorDTO err = new CustomErrorDTO(
+                Instant.now()
+                , status.value()
+                , e.getMessage()
+                , request.getRequestURI());
+
+        return ResponseEntity.status(status).body(err);
+    }
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<CustomErrorDTO>handleMethodArgumentNoValid(MethodArgumentNotValidException e,
+                                                               HttpServletRequest request){
+        HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
+        ValidationErrorDTO err = new ValidationErrorDTO(Instant.now(),status.value(),"Dados invalidos",
+                request.getRequestURI());
+
+        for (FieldError fieldError : e.getBindingResult().getFieldErrors()){
+            err.addError(fieldError.getField(), fieldError.getDefaultMessage());
+        }
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<CustomErrorDTO> handleHttpMessageNotReadble(HttpMessageNotReadableException e,
+                                                                      HttpServletRequest request){
+
+        HttpStatus status = HttpStatus.BAD_REQUEST;//400
+        CustomErrorDTO err = new CustomErrorDTO(Instant.now(), status.value(),
+                "Requisicao invalida(JSON mal formado ou corpo nao interpretavel.)",
+                request.getRequestURI());
+
+        return ResponseEntity.status(status).body(err);
+
+    }
+
+    @ExceptionHandler(Exception.class)
+
+    public  ResponseEntity<CustomErrorDTO>handleGenericException(Exception e, HttpServletRequest request){
+
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+
+        CustomErrorDTO err = new CustomErrorDTO(
+                Instant.now(),status.value(),
+                "Erro interno inesperado.",
+                request.getRequestURI()
+        );
+
+        return  ResponseEntity.status(status).body(err);
+    }
+
+}

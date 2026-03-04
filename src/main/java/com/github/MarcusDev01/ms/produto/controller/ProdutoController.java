@@ -5,6 +5,7 @@ import com.github.MarcusDev01.ms.produto.dto.ProdutoDTO;
 import com.github.MarcusDev01.ms.produto.service.ProdutoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -18,6 +19,12 @@ public class ProdutoController {
 
     @Autowired
     private ProdutoService produtoService;
+
+//    @Profile("test")
+//    @GetMapping("/--demo/500")
+//    public String force500(){
+//        throw new RuntimeException("erro 500 forçado para demonstracao");
+//    }
 
     @GetMapping
     public ResponseEntity<List<ProdutoDTO>>getAllProdutos(){
@@ -57,4 +64,6 @@ public class ProdutoController {
 
         return ResponseEntity.noContent().build();
     }
+
+
 }
