@@ -1,4 +1,7 @@
 package com.github.MarcusDev01.ms.produto.repositories;
 
-public interface CategoriaRepository {
+import com.github.MarcusDev01.ms.produto.entities.Categoria;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
 }
